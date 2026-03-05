@@ -242,10 +242,10 @@ def render_sidebar():
             st.write(f"**Data Source:** {st.session_state.get('data_source', 'Yahoo Finance')}")
             st.write(f"**Granularity:** {st.session_state.get('granularity', 3600)} min")
             st.write(f"**Test Size:** {st.session_state.get('future_bars', 90)} bars")
-            st.write(f"**Strategies:** ", end="")
+            # st.write(f"**Strategies:** ", end="")
             strategies = []
             if st.session_state.get('run_eigen'): strategies.append("Eigen")
             if st.session_state.get('run_mvp'): strategies.append("MVP")
             if st.session_state.get('run_msr'): strategies.append("MSR")
             if st.session_state.get('run_ga'): strategies.append("GA")
-            st.write(", ".join(strategies))
+            st.write(f"**Strategies:** {', '.join(strategies)}")
