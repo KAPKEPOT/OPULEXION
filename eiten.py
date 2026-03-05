@@ -11,7 +11,7 @@ from strategy_manager import StrategyManager
 
 class Eiten:
     def __init__(self, args):
-        plt.style.use('seaborn-v0_8-white')
+        plt.style.use('seaborn-white')
         plt.rc('grid', linestyle="dotted", color='#a0a0a0')
         plt.rcParams['axes.edgecolor'] = "#04383F"
         plt.rcParams['figure.figsize'] = (12, 6)
@@ -109,13 +109,24 @@ class Eiten:
 
         # Calculate covariance matrix
         covariance_matrix = np.cov(returns_matrix)
-
+        
         # Use random matrix theory to filter out the noisy eigen values
         if self.args.apply_noise_filtering:
-            print(
-                "\n** Applying random matrix theory to filter out noise in the covariance matrix...\n")
-            covariance_matrix = self.strategyManager.random_matrix_theory_based_cov(
-                returns_matrix)
+        	print("\n** Applying random matrix theory to filter out noise in the covariance matrix...\n")
+        
+        # Check if returns_matrix has enough data and is valid
+        if np.any(np.isnan(returns_matrix)) or np.any(np.isinf(returns_matrix)):
+        	print("Warning: NaN or Inf values detected in returns matrix. Cleaning...")
+        	returns_matrix = np.nan_to_num(returns_matrix, nan=0.0, posinf=0.0, neginf=0.0)
+        
+        # Check if we have enough data points
+        if returns_matrix.shape[1] < returns_matrix.shape[0]:
+        	print(f"Warning: More assets ({returns_matrix.shape[0]}) than time periods ({returns_matrix.shape[1]}). RMT may not work well.")
+        
+        try:
+        	covariance_matrix = self.strategyManager.random_matrix_theory_based_cov(returns_matrix)
+        except Exception as e:
+        	print(f"RMT filtering failed: {e}. Using original covariance matrix.")
 
         # Get weights for the portfolio
         eigen_portfolio_weights_dictionary = self.strategyManager.calculate_eigen_portfolio(
@@ -269,5 +280,3 @@ class Eiten:
         plt.xlabel("Symbols", fontsize=14)
         plt.ylabel("Weight in Portfolio", fontsize=14)
         plt.title("Portfolio Weights for Different Strategies", fontsize=14)
-
-
