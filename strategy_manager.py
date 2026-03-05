@@ -56,5 +56,10 @@ class StrategyManager:
 		"""
 		Covariance matrix filtering using random matrix theory
 		"""
-		filtered_covariance_matrix = self.strategyHelperFunctions.random_matrix_theory_based_cov(returns_matrix)
-		return filtered_covariance_matrix
+		try:
+			filtered_covariance_matrix = self.strategyHelperFunctions.random_matrix_theory_based_cov(returns_matrix)
+			return filtered_covariance_matrix
+		except Exception as e:
+			print(f"Warning: Random matrix theory filtering failed: {e}")
+			print("Returning original covariance matrix instead.")
+			return np.cov(returns_matrix)
