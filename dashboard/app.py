@@ -163,15 +163,15 @@ if st.session_state.get('optimization_run', False):
         with col1:
             st.subheader("Backtest Results")
             if os.path.exists("output/backtest.png"):
-                st.image("output/backtest.png", use_column_width=True)
+                st.image("output/backtest.png", use_container_width=True)
         with col2:
             st.subheader("Future Test Results")
             if os.path.exists("output/future_tests.png"):
-                st.image("output/future_tests.png", use_column_width=True)
+                st.image("output/future_tests.png", use_container_width=True)
         
         st.subheader("Monte Carlo Simulation")
         if os.path.exists("output/monte_carlo.png"):
-            st.image("output/monte_carlo.png", use_column_width=True)
+            st.image("output/monte_carlo.png", use_container_width=True)
     
     with tab3:
         st.subheader("Risk Metrics")
