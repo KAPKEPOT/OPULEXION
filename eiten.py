@@ -11,7 +11,7 @@ from strategy_manager import StrategyManager
 
 class Eiten:
     def __init__(self, args):
-        plt.style.use('seaborn-white')
+        plt.style.use('seaborn-v0_8-white')
         plt.rc('grid', linestyle="dotted", color='#a0a0a0')
         plt.rcParams['axes.edgecolor'] = "#04383F"
         plt.rcParams['figure.figsize'] = (12, 6)

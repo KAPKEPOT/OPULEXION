@@ -13,7 +13,7 @@ import warnings
 warnings.filterwarnings("ignore")
 
 # Styling for plots
-plt.style.use('seaborn-white')
+plt.style.use('seaborn-v0_8-white')
 plt.rc('grid', linestyle="dotted", color='#a0a0a0')
 plt.rcParams['axes.edgecolor'] = "#04383F"
 
