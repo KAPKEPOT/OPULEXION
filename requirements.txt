@@ -1,6 +1,4 @@
-# Dashboard
-streamlit>=1.25.0
- pyyaml
+pyyaml
 
 # Testing
 pytest>=7.4.0
@@ -15,3 +13,10 @@ pandas>=1.1.1
 yfinance>=0.1.54
 scipy>=1.5.2
 matplotlib>=3.3.1
+
+streamlit>=1.25.0
+plotly>=5.14.0
+seaborn>=0.12.0
+reportlab>=4.0.0  
+openpyxl>=3.1.0   
+xlsxwriter>=3.0.0 
