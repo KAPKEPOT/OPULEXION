@@ -108,18 +108,96 @@ class Eiten:
         historical_price_info, future_prices, symbol_names, predicted_return_vectors, returns_matrix, returns_matrix_percentages = self.load_data()
         historical_price_market, future_prices_market = self.dataEngine.get_market_index_price()
         
+        # DETAILED DIAGNOSTICS - Find exact root cause
+        print("\n" + "="*50)
+        print("DATA LOADING DIAGNOSTICS")
+        print("="*50)
+        print(f"Number of symbols: {len(symbol_names)}")
+        print(f"Symbols: {symbol_names}")
+        print(f"Returns matrix shape: {returns_matrix.shape}")
+        print(f"Returns matrix type: {type(returns_matrix)}")
+        
+        # Check each symbol's data
+        print("\n--- Individual Symbol Data ---")
+        for i, symbol in enumerate(symbol_names):
+        	hist_data = self.data_dictionary[symbol]["historical_prices"]
+        	future_data = self.data_dictionary[symbol]["future_prices"]
+        	print(f"\n{symbol}:")
+        	print(f"  Historical data type: {type(hist_data)}")
+        	if hasattr(hist_data, 'shape'):
+        		print(f"  Historical data shape: {hist_data.shape}")
+        	elif isinstance(hist_data, list):
+        		print(f"  Historical data length: {len(hist_data)}")
+        	else:
+        		print(f"  Historical data: {hist_data}")
+        	print(f"  Future data type: {type(future_data)}")
+        	if hasattr(future_data, 'shape'):
+        		print(f"  Future data shape: {future_data.shape}")
+        	elif isinstance(future_data, list):
+        		print(f"  Future data length: {len(future_data)}")
+        
+        # Check the create_returns function output
+        print("\n--- Returns Matrix Details ---")
+        print(f"Returns matrix shape: {returns_matrix.shape}")
+        if returns_matrix.shape[1] == 0:
+        	print("❌ CRITICAL: No time periods in returns matrix!")
+        	
+        	# Try to recreate returns manually to see where it fails
+        	print("\n--- Manual Returns Calculation Test ---")
+        	for i, symbol in enumerate(symbol_names):
+        		hist_data = self.data_dictionary[symbol]["historical_prices"]
+        		if isinstance(hist_data, pd.DataFrame):
+        			if 'Close' in hist_data.columns:
+        				close_prices = hist_data['Close'].values
+        				print(f"{symbol}: Close prices length = {len(close_prices)}")
+        				if len(close_prices) > 1:
+        					try:
+        						returns = [self.calculate_percentage_change(close_prices[i-1], close_prices[i]) 
+        						for i in range(1, len(close_prices))]
+        						print(f"  Successfully calculated {len(returns)} returns")
+        					except Exception as e:
+        						print(f"  Error calculating returns: {e}")
+        				else:
+        					print(f"  Not enough close prices (need at least 2)")
+        			else:
+        				print(f"  No 'Close' column found. Columns: {hist_data.columns.tolist()}")
+        		else:
+        			print(f"  Historical data is not a DataFrame: {type(hist_data)}")
+        			
+        print("="*50 + "\n")
+        
         # Check if returns_matrix has data
         if returns_matrix.shape[1] == 0:
         	print("\n❌ ERROR: Returns matrix has no time periods data!")
-        	print("Possible causes:")
-        	print("  - Not enough historical data downloaded")
-        	print("  - Data granularity too small for the time period")
-        	print("  - Yahoo Finance rate limiting")
-        	print("\nSuggestions:")
-        	print("  - Try using --history_to_use with a specific number (e.g., 100)")
-        	print("  - Increase --data_granularity_minutes to 60 or 3600")
-        	print("  - Check your internet connection")
+        	print("\nEXACT ROOT CAUSE:")
+        	print("The create_returns() function failed to generate any returns because:")
+        	
+        	# Determine the exact cause
+        	if len(symbol_names) == 0:
+        		print("  - No symbols were successfully loaded from data_loader")
+        	else:
+        		# Check if historical_price_info is empty
+        		if len(historical_price_info) == 0:
+        			print("  - historical_price_info is empty")
+        		else:
+        			# Check first symbol's data
+        			first_symbol = symbol_names[0]
+        			first_data = self.data_dictionary[first_symbol]["historical_prices"]
+        			if isinstance(first_data, pd.DataFrame):
+        				if first_data.empty:
+        					print(f"  - DataFrame for {first_symbol} is empty")
+        				elif 'Close' not in first_data.columns:
+        					print(f"  - 'Close' column missing in {first_symbol} data. Columns: {first_data.columns.tolist()}")
+        				elif len(first_data) < 2:
+        					print(f"  - Insufficient data points for {first_symbol}: only {len(first_data)} row(s)")
+        				else:
+        					print(f"  - Unknown issue with {first_symbol}. Data head:\n{first_data.head()}")
+        			else:
+        				print(f"  - Historical data for {first_symbol} is not a DataFrame: {type(first_data)}")
+        	
+        	print("\nDebug the data_loader.get_data() function to see why it's returning empty/invalid data.")
         	sys.exit(1)
+        	
 
         # Calculate covariance matrix
         covariance_matrix = np.cov(returns_matrix)
