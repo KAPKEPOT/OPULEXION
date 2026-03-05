@@ -1,6 +1,6 @@
-# Basic libraries
 import os
 import warnings
+import numpy as np
 from strategies.genetic_algo_strategy import GeneticAlgoStrategy
 from strategies.maximum_sharpe_ratio_strategy import MaximumSharpeRatioStrategy
 from strategies.eigen_portfolio_strategy import EigenPortfolioStrategy
