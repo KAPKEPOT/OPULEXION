@@ -1,6 +1,6 @@
 import argparse
 import json
-import yaml  # Add to requirements: pyyaml
+import yaml
 from eiten import Eiten
 from argchecker import ArgChecker
 
