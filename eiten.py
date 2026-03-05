@@ -395,16 +395,15 @@ class Eiten:
         plt.grid()
         plt.legend(fontsize=14)
         plt.tight_layout()
+        
+        # Show the plot
         plt.show()
         
-        # Check if we should save or show
-        if hasattr(self.args, 'save_plot') and self.args.save_plot:
-        	# Create output directory if it doesn't exist
-        	os.makedirs(os.path.dirname(filename), exist_ok=True)
-        	plt.savefig(filename, dpi=300, bbox_inches='tight')
-        	print(f"Plot saved to {filename}")
-        else:
-        	plt.show()
+        # Optionally save it too      
+        # Create output directory if it doesn't exist
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
+        plt.savefig(filename, dpi=300, bbox_inches='tight')
+        print(f"Plot saved to {filename}")
         	
     def print_and_plot_portfolio_weights(self, weights_dictionary: dict, strategy, plot_num: int) -> None:
         print("\n-------- Weights for %s --------" % strategy)
