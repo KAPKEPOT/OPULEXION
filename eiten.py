@@ -2,6 +2,7 @@ import math
 import numpy as np
 import matplotlib.pyplot as plt
 import sys
+import pandas as pd
 
 # Load our modules
 from data_loader import DataEngine
@@ -44,41 +45,71 @@ class Eiten:
         return ((new - old) * 100) / old
 
     def create_returns(self, historical_price_info):
-        """
-        Create log return matrix, percentage return matrix, and mean return 
-        vector
-        """
-
-        returns_matrix = []
-        returns_matrix_percentages = []
-        predicted_return_vectors = []
-        for i in range(0, len(historical_price_info)):
-            close_prices = list(historical_price_info[i]["Close"])
-            log_returns = [math.log(close_prices[i] / close_prices[i - 1])
-                           for i in range(1, len(close_prices))]
-            percentage_returns = [self.calculate_percentage_change(
-                close_prices[i - 1], close_prices[i]) for i in range(1, len(close_prices))]
-
-            total_data = len(close_prices)
-
-            # Expected returns in future. We can either use historical returns as future returns on try to simulate future returns and take the mean. For simulation, you can modify the functions in simulator to use here.
-            future_expected_returns = np.mean([(self.calculate_percentage_change(close_prices[i - 1], close_prices[i])) / (
-                total_data - i) for i in range(1, len(close_prices))])  # More focus on recent returns
-
-            # Add to matrices
-            returns_matrix.append(log_returns)
-            returns_matrix_percentages.append(percentage_returns)
-
-            # Add returns to vector
-            # Assuming that future returns are similar to past returns
-            predicted_return_vectors.append(future_expected_returns)
-
-        # Convert to numpy arrays for one liner calculations
-        predicted_return_vectors = np.array(predicted_return_vectors)
-        returns_matrix = np.array(returns_matrix)
-        returns_matrix_percentages = np.array(returns_matrix_percentages)
-
-        return predicted_return_vectors, returns_matrix, returns_matrix_percentages
+    	returns_matrix = []
+    	returns_matrix_percentages = []
+    	predicted_return_vectors = []
+    	
+    	for i in range(0, len(historical_price_info)):
+    		# Get the DataFrame for this symbol
+    		df = historical_price_info[i]
+    		
+    		# Check if it's a DataFrame and has the Close column
+    		if not isinstance(df, pd.DataFrame):
+    			print(f"Warning: historical_price_info[{i}] is not a DataFrame: {type(df)}")
+    			continue
+    		
+    		if 'Close' not in df.columns:
+    			print(f"Warning: 'Close' column not found in DataFrame. Columns: {df.columns.tolist()}")
+    			continue
+    		
+    		# Get close prices as a list
+    		close_prices = df['Close'].values.tolist()
+    		
+    		# Need at least 2 prices to calculate returns
+    		if len(close_prices) < 2:
+    			print(f"Warning: Not enough close prices for symbol at index {i}: {len(close_prices)}")
+    			continue
+    		
+    		# Calculate returns
+    		log_returns = []
+    		percentage_returns = []
+    		
+    		for j in range(1, len(close_prices)):
+    			try:
+    				log_return = math.log(close_prices[j] / close_prices[j - 1])
+    				log_returns.append(log_return)
+    				
+    				pct_return = self.calculate_percentage_change(close_prices[j - 1], close_prices[j])
+    				percentage_returns.append(pct_return)
+    			except Exception as e:
+    				print(f"Error calculating return at index {j}: {e}")
+    				continue
+    				
+    		total_data = len(close_prices)
+    		
+    		# Expected returns in future
+    		try:
+    			future_expected_returns = np.mean([(self.calculate_percentage_change(close_prices[j - 1], close_prices[j])) / 
+                                              (total_data - j) for j in range(1, len(close_prices))])
+    		except Exception as e:
+    			print(f"Error calculating future expected returns: {e}")
+    			future_expected_returns = 0
+    		
+    		# Add to matrices
+    		returns_matrix.append(log_returns)
+    		returns_matrix_percentages.append(percentage_returns)
+    		predicted_return_vectors.append(future_expected_returns)
+    	
+    	# Convert to numpy arrays for one liner calculations
+    	if len(returns_matrix) == 0:
+    		print("Warning: No returns data generated!")
+    		return np.array([]), np.array([]), np.array([])
+    	
+    	predicted_return_vectors = np.array(predicted_return_vectors)
+    	returns_matrix = np.array(returns_matrix)
+    	returns_matrix_percentages = np.array(returns_matrix_percentages)
+    	
+    	return predicted_return_vectors, returns_matrix, returns_matrix_percentages
 
     def load_data(self):
         """
