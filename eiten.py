@@ -1,3 +1,4 @@
+import os
 import math
 import numpy as np
 import matplotlib.pyplot as plt
@@ -396,12 +397,15 @@ class Eiten:
         plt.tight_layout()
         plt.show()
         
-        """if self.args.save_plot:
-            plt.savefig(filename)
+        # Check if we should save or show
+        if hasattr(self.args, 'save_plot') and self.args.save_plot:
+        	# Create output directory if it doesn't exist
+        	os.makedirs(os.path.dirname(filename), exist_ok=True)
+        	plt.savefig(filename, dpi=300, bbox_inches='tight')
+        	print(f"Plot saved to {filename}")
         else:
-            plt.tight_layout()
-            plt.show()""" # Plots were not being generated properly. Need to fix this.
-
+        	plt.show()
+        	
     def print_and_plot_portfolio_weights(self, weights_dictionary: dict, strategy, plot_num: int) -> None:
         print("\n-------- Weights for %s --------" % strategy)
         symbols = list(sorted(weights_dictionary.keys()))
