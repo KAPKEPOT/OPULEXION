@@ -38,12 +38,12 @@ pip install -r requirements.txt
 ## Build your portfolios
 Let us see how we can use all the strategies given in the toolkit to build our portfolios. The first thing you need to do is modify the **stocks.txt** file in the **stocks** folder and add the stocks of your choice. It is recommended to keep the list small i.e anywhere between **5 to 50** stocks should be fine. We have already put a small stocks list containing a bunch of tech stocks like AAPL, MSFT, TSLA etc. Let us build our portfolios now. This is the main command that you need to run.
 
-# Using config file
+#### Using config file
 ```
 python portfolio_manager.py --config config.yaml
 ```
 
-# Quick run with just stocks
+#### Quick run with just stocks
 ```
 python portfolio_manager.py --stocks stocks/tech.txt
 ```
