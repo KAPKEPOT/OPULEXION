@@ -21,7 +21,7 @@ def render_weights_chart():
         # Try to load from saved output
         weights_file = Path("output/weights.png")
         if weights_file.exists():
-            st.image(str(weights_file), use_column_width=True)
+            st.image(str(weights_file), use_container_width=True)
             
             # Add interactive toggles
             st.markdown("### Toggle Strategies")
@@ -123,7 +123,7 @@ def create_returns_chart():
     # Check if we have returns data
     returns_file = Path("output/backtest.png")
     if returns_file.exists():
-        st.image(str(returns_file), use_column_width=True)
+        st.image(str(returns_file), use_container_width=True)
     else:
         # Create sample data for demonstration
         np.random.seed(42)
