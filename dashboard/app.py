@@ -223,7 +223,7 @@ st.markdown("---")
 st.markdown(
     "<p style='text-align: center; color: #6c757d;'>"
     "Made with ❤️ using Streamlit | "
-    "<a href='https://github.com/KAPKEPOT/eiten'>GitHub</a>"
+    "<a href='https://github.com/KAPKEPOT/CipherTrade'>GitHub</a>"
     "</p>",
     unsafe_allow_html=True
 )
