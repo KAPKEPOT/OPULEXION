@@ -58,13 +58,23 @@ class Eiten:
     			print(f"Warning: historical_price_info[{i}] is not a DataFrame: {type(df)}")
     			continue
     		
-    		if 'Close' not in df.columns:
-    			print(f"Warning: 'Close' column not found in DataFrame. Columns: {df.columns.tolist()}")
-    			continue
+    		# Handle MultiIndex columns (like from yfinance)
+    		if isinstance(df.columns, pd.MultiIndex):
+    			# Get the Close column values (first ticker's Close)
+    			close_series = df.loc[:, ('Close', slice(None))].iloc[:, 0]
+    			close_prices = close_series.values.tolist()
+    		else:
+    			# Simple DataFrame
+    			if 'Close' not in df.columns:
+    				print(f"Warning: 'Close' column not found in DataFrame. Columns: {df.columns.tolist()}")
+    				continue
+    			close_prices = df['Close'].values.tolist()
     		
-    		# Get close prices as a list
-    		close_prices = df['Close'].values.tolist()
-    		
+    		# Ensure close_prices is a flat list of numbers
+    		# If it's still nested, flatten it
+    		if close_prices and isinstance(close_prices[0], list):
+    			close_prices = [item[0] if isinstance(item, list) else item for item in close_prices]
+ 
     		# Need at least 2 prices to calculate returns
     		if len(close_prices) < 2:
     			print(f"Warning: Not enough close prices for symbol at index {i}: {len(close_prices)}")
@@ -76,13 +86,17 @@ class Eiten:
     		
     		for j in range(1, len(close_prices)):
     			try:
-    				log_return = math.log(close_prices[j] / close_prices[j - 1])
+    				# Ensure we're working with numbers
+    				prev_price = float(close_prices[j-1])
+    				curr_price = float(close_prices[j])
+    				log_return = math.log(curr_price / prev_price)
     				log_returns.append(log_return)
-    				
-    				pct_return = self.calculate_percentage_change(close_prices[j - 1], close_prices[j])
+    				pct_return = self.calculate_percentage_change(prev_price, curr_price)
     				percentage_returns.append(pct_return)
     			except Exception as e:
     				print(f"Error calculating return at index {j}: {e}")
+    				print(f"  prev_price: {close_prices[j-1]} ({type(close_prices[j-1])})")
+    				print(f"  curr_price: {close_prices[j]} ({type(close_prices[j])})")
     				continue
     				
     		total_data = len(close_prices)
