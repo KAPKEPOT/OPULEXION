@@ -270,3 +270,4 @@ class Eiten:
         plt.ylabel("Weight in Portfolio", fontsize=14)
         plt.title("Portfolio Weights for Different Strategies", fontsize=14)
 
+
